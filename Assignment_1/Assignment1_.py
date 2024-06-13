@@ -36,7 +36,7 @@ class SpaceWarEnv(gym.Env):
         ]
         self.king_cord = (1295, 100)
 
-        self.bullet = 20
+        self.bullet = 1_00_000
 
         self.space_cord_X = 735  # agent location x
         self.space_cord_Y = 650  # agent location y
@@ -157,7 +157,7 @@ class SpaceWarEnv(gym.Env):
         self.target_hit = 0
         self.astronaut_hit = 0
         self.waste_bullet = 0
-        self.bullet = 20
+        self.bullet = 1_00_000
         self.king_cord = (1295, 100)
         self.dead_list = []
         self.done = False
@@ -183,6 +183,7 @@ class SpaceWarEnv(gym.Env):
         self.canvas.coords(self.space_id, self.space_cord_X, self.space_cord_Y)
         self.canvas.delete("all")
         self.update_score()
+        self.frame.config(bg="white")
 
         # loading all the images
         for n in range(len(self.enemy_list)):
@@ -214,16 +215,19 @@ class SpaceWarEnv(gym.Env):
         elif action == 2:  # Shoot
             self.shoot((self.space_cord_X, self.space_cord_Y), self.enemy_list)
 
-        self.done = (
-            len(self.astronaut_list) == 0  # HELL State
-            or self.bullet == 0  # HELL State
-            or len(self.enemy_list) == 0  # hitting all normal enemy #GOAL STATE
-        )
-        if (
-            action == 3
-        ):  # action 4 == self terminating feature will activate only after reaching certain threshold
+        # action 4 == self terminating feature will activate only after reaching certain threshold
+        if action == 3:
             if self.target_hit >= 70:
+                self.frame.config(bg="green")
                 self.done = True
+
+        if self.astronaut_list == 0:  # or bullet == 0
+            self.frame.config(bg="red")
+            self.done = True
+
+        if self.enemy_list == 0:
+            self.frame.config(bg="green")
+            self.done = True
 
         state = np.array([self.space_cord_X, self.space_cord_Y])
         info = {"bullets_left": self.bullet}
@@ -296,9 +300,8 @@ class SpaceWarEnv(gym.Env):
         self.update_score()
 
     def update_score(self):
-        self.reward = (
-            (self.target_hit) * self.bullet + self.astronaut_hit + self.waste_bullet
-        )
+        # self.bullet *
+        self.reward = self.target_hit + self.astronaut_hit + self.waste_bullet
         self.label.config(text="Score:{}".format(self.reward))
         self.label1.config(text="Target points:\n{}".format(self.target_hit))
         self.label2.config(text="Astronaut points:\n{}".format(self.astronaut_hit))
