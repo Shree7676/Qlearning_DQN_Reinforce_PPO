@@ -1,81 +1,64 @@
-# Imports:
-# --------
-# import matplotlib.pyplot as plt
 import numpy as np
 
-# import seaborn as sns
 
-
-# Function 1: Train Q-learning agent
-# -----------
 def train_q_learning(
     env,
+    render,
     no_episodes,
     epsilon,
     epsilon_min,
     epsilon_decay,
     alpha,
-    gamma,
+    discount_factor,
     q_table_save_path="q_table.npy",
 ):
-    # Initialize the Q-table:
-    # -----------------------
-    # q_table = np.zeros((env.grid_size, env.grid_size, env.action_space.n))
-    q_table = np.zeros((1400, 700, env.action_space.n))
+    q_table = np.zeros((1, 20, env.action_space.n))
 
-    # Q-learning algorithm:
-    # ---------------------
-    #! Step 1: Run the algorithm for fixed number of episodes
-    #! -------
+    goal = 0
+    hell = 0
     for episode in range(no_episodes):
         state, _ = env.reset()
+        # print(state)
 
-        state = tuple(state)
         total_reward = 0
 
-        #! Step 2: Take actions in the environment until "Done" flag is triggered
-        #! -------
         while True:
-            #! Step 3: Define your Exploration vs. Exploitation
-            #! -------
             if np.random.rand() < epsilon:
                 action = env.action_space.sample()  # Explore
             else:
-                action = np.argmax(q_table[state])  # Exploit
+                action = np.argmax(q_table[0][state])  # Exploit
 
+            print(q_table)
             next_state, reward, done, _ = env.step(action)
-            env.render()
+            print(next_state, reward, done, _)
+            if render:
+                env.render()
 
-            next_state = tuple(next_state)
             total_reward += reward
 
-            #! Step 4: Update the Q-values using the Q-value update rule
-            #! -------
-            print(q_table[next_state], q_table[state][action])
-            q_table[state][action] = q_table[state][action] + alpha * (
-                reward + gamma * np.max(q_table[next_state]) - q_table[state][action]
+            q_table[0][state][action] = q_table[0][state][action] + alpha * (
+                reward
+                + discount_factor * np.max(q_table[0][next_state])
+                - q_table[0][state][action]
             )
 
             state = next_state
 
-            #! Step 5: Stop the episode if the agent reaches Goal or Hell-states
-            #! -------
-            if done:
+            if done == "Goal":
+                goal += 1
+                break
+            elif done == "Hell":
+                hell += 1
                 break
 
-        #! Step 6: Perform epsilon decay
-        #! -------
         epsilon = max(epsilon_min, epsilon * epsilon_decay)
+        print(f"reached goal {goal}, reached hell {hell}")
 
         print(f"Episode {episode + 1}: Total Reward: {total_reward}")
 
-    #! Step 7: Close the environment window
-    #! -------
     env.close()
     print("Training finished.\n")
 
-    #! Step 8: Save the trained Q-table
-    #! -------
     np.save(q_table_save_path, q_table)
     print("Saved the Q-table.")
 
