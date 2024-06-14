@@ -28,9 +28,9 @@ def train_q_learning(
             else:
                 action = np.argmax(q_table[0][state])  # Exploit
 
-            print(q_table)
+            # print(q_table)
             next_state, reward, done, _ = env.step(action)
-            print(next_state, reward, done, _)
+            print(next_state, reward, done, _, end="\t")
             if render:
                 env.render()
 
@@ -52,9 +52,9 @@ def train_q_learning(
                 break
 
         epsilon = max(epsilon_min, epsilon * epsilon_decay)
-        print(f"reached goal {goal}, reached hell {hell}")
+        print(f"goal {goal}, hell {hell}", end="\t")
 
-        print(f"Episode {episode + 1}: Total Reward: {total_reward}")
+        print(f"Episode {episode + 1}: Total Reward: {total_reward}", end="\t")
 
     env.close()
     print("Training finished.\n")
