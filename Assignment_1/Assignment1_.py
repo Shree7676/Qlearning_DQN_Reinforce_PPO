@@ -23,7 +23,7 @@ class SpaceWarEnv(gym.Env):
             (70, 350),
             (560, 500),
             (1050, 350),
-            (560, 300),  # 560
+            (140, 300),  # 560
             (1120, 150),
             (630, 350),
             (420, 500),
@@ -39,7 +39,7 @@ class SpaceWarEnv(gym.Env):
 
         self.bullet = 10_000
 
-        self.space_cord_X = 735  # agent location x
+        self.space_cord_X = 35  # agent location x
         self.space_cord_Y = 650  # agent location y
 
         self.state_reward = 0
@@ -157,7 +157,7 @@ class SpaceWarEnv(gym.Env):
 
         self.king_dead = False
         self.update_score()
-        self.space_cord_X = 735
+        self.space_cord_X = 35
         self.space_cord_Y = 650
         # self.move = 0
         self.state_reward = 0
@@ -175,7 +175,7 @@ class SpaceWarEnv(gym.Env):
             (70, 350),
             (560, 500),
             (1050, 350),
-            (560, 300),
+            (140, 300),
             (1120, 150),
             (630, 350),
             (420, 500),
@@ -257,17 +257,13 @@ class SpaceWarEnv(gym.Env):
     def move_spaceship(self, direction):
         self.erase_line()
         if direction == "left":
-            if self.previous_direction == "right":
-                self.state_reward -= 5
-            else:
-                self.state_reward += 5
+            # if self.previous_direction == "right":
+            # self.state_reward -= 1
             self.space_cord_X -= self.space_size
             self.previous_direction = "left"
         elif direction == "right":
-            if self.previous_direction == "left":
-                self.state_reward -= 5
-            else:
-                self.state_reward += 5
+            # if self.previous_direction == "left":
+            # self.state_reward -= 1
             self.space_cord_X += self.space_size
             self.previous_direction = "right"
 
@@ -298,8 +294,8 @@ class SpaceWarEnv(gym.Env):
                 self.canvas.create_line(ship_cord, (aX - 35, aY), width=4, fill="red")
                 self.dead_list.append([ship_cord, (aX, aY)])
                 self.astronaut_list.remove((aX, aY))
-                self.astronaut_hit -= 30
-                self.state_reward -= 30
+                self.astronaut_hit -= 10
+                self.state_reward -= 10
                 fired = True
                 break
         # checks if king is dead which has high reward

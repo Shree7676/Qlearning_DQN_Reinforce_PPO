@@ -408,4 +408,4 @@ if __name__ == "__main__":
             if env_done:
                 env.reset()
                 break
-    env.window.mainloop()
+    env.window.mainloop()   env.window.mainloop()

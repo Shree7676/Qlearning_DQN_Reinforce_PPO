@@ -30,7 +30,7 @@ def train_q_learning(
 
             # print(q_table)
             next_state, reward, done, _ = env.step(action)
-            print(next_state, reward, done, _, end="\t")
+            # print(next_state, reward, done, _, end="\t")
             if render:
                 env.render()
 
@@ -54,7 +54,7 @@ def train_q_learning(
         epsilon = max(epsilon_min, epsilon * epsilon_decay)
         print(f"goal {goal}, hell {hell}", end="\t")
 
-        print(f"Episode {episode + 1}: Total Reward: {total_reward}", end="\t")
+        print(f"Episode {episode + 1}: Total Reward: {total_reward}")
 
     env.close()
     print("Training finished.\n")
