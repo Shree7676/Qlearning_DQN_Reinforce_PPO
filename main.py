@@ -1,13 +1,15 @@
 # Imports:
 # --------
-from Assignment_1.Assignment1_ import create_env
+# from Assignment_1.Assignment1_ import create_env
+from Assignment4.game_4_dqn import create_env
 from Assignment_3.q_learn_ import train_q_learning
-from check_model import test_q_learning
+
+# from check_model import test_q_learning
 
 # User definitions:
 # -----------------
-train = False
-# train = True
+# train = False
+train = True
 visualize_results = True
 
 learning_rate = 0.01  # Learning rate
