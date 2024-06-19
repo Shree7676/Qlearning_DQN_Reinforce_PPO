@@ -92,7 +92,7 @@ class space_war(gym.Env):
         self.image_load()
 
         # Gymnasium Spaces
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(
             low=0,
             high=max(self.game_width, self.game_height),
@@ -142,11 +142,7 @@ class space_war(gym.Env):
         # Horizontal line
         self.canvas.create_line((0, 575), (1400, 575), width=2, fill="white")
 
-        position_x = int(self.env_details[-1]["Position"][0] / 70)
-        enemy_status = self.enemy_status(self.env_details[-1]["Position"][0])
-        state_value = np.array([position_x, enemy_status])
-
-        return state_value, self.env_details
+        return self.state_features(), self.env_details
 
     def enemy_status(self, agentX):
         for detail in self.env_details:
@@ -160,21 +156,33 @@ class space_war(gym.Env):
     def step(self, action):
         self.erase_line()
         hero_x, hero_y = self.env_details[-1]["Position"]
-        if action == 0:
+        if action == 0:  # move left and shoot
             hero_x -= self.space_size
-        elif action == 1:
-            hero_x += self.space_size
-        elif action == 2:
             self.shoot(hero_x, hero_y)
+        elif action == 1:  # move right and shoot
+            hero_x += self.space_size
+            self.shoot(hero_x, hero_y)
+        elif action == 2:  # just move left
+            hero_x -= self.space_size
+        elif action == 3:  # just move right
+            hero_x += self.space_size
+        elif action == 4:  # just shoot
+            hero_x += self.space_size
+
         self.done = self.check_game_status()
-        if action == 3:
-            if self.score_board["Score"] >= 100:
-                self.done = "Goal"
+        # if action == 3:
+        #     if self.score_board["Score"] >= 100:
+        #         self.done = "Goal"
 
         # updating the position of the spaceshp
 
         # To Ensure the spaceship stays within canvas bounds
-        hero_x = max(35, min(self.game_width - 35, hero_x))
+        # hero_x = max(35, min(self.game_width - 35, hero_x))
+        # teleporting feature
+        if hero_x > self.game_width - 35:
+            hero_x = 35
+        elif hero_x < 35:
+            hero_x = self.game_width - 35
         self.canvas.coords(self.img_id[-1], hero_x, hero_y)
         self.env_details[-1]["Position"] = (
             hero_x,
@@ -188,15 +196,29 @@ class space_war(gym.Env):
 
         reward = self.score_board["Score"] - self.previous_score
         self.previous_score = self.score_board["Score"]
-        position_x = int(self.env_details[-1]["Position"][0] / 70)
-        enemy_status = self.enemy_status(self.env_details[-1]["Position"][0])
-        state_value = np.array([position_x, enemy_status])
         return (
-            state_value,
+            self.state_features(),
             reward,
             self.done,
             self.env_details,
         )
+
+    def state_features(self):
+        agentX = self.env_details[-1]["Position"][0]
+        left_alive = 0
+        right_alive = 0
+        for dic in self.env_details:
+            if dic["Status"] == "Alive" and dic["Type"] != "Hero":
+                if dic["Position"][0] < agentX:
+                    left_alive += 1
+                elif dic["Position"][0] > agentX:
+                    right_alive += 1
+
+        position_x = int(self.env_details[-1]["Position"][0] / 70)
+        enemy_status = self.enemy_status(self.env_details[-1]["Position"][0])
+        state_value = np.array([position_x, enemy_status, left_alive, right_alive])
+
+        return state_value
 
     def render(self):
         self.window.update()
@@ -276,9 +298,9 @@ class space_war(gym.Env):
                 self.env_details[i]["Status"] = "Dead"
                 self.draw_cross_mark(pos_x, pos_y)
                 if detail["Type"] == "Enemy_N":
-                    self.score_board["Target Hit"] += 10
+                    self.score_board["Target Hit"] += 15
                 elif detail["Type"] == "Friend":
-                    self.score_board["Hostage Loss"] -= 20
+                    self.score_board["Hostage Loss"] -= 10
                     break
             elif pos_x == hero_x and status == "Alive":  # king
                 self.canvas.create_line(
@@ -293,6 +315,7 @@ class space_war(gym.Env):
             i += 1
         else:
             self.score_board["Bullet Left"] -= 1
+            self.score_board["Bullet Loss"] -= 1
 
     def draw_cross_mark(self, pos_x, pos_y):
         if pos_y == self.env_details[-1]["Position"][1]:
@@ -330,7 +353,7 @@ class space_war(gym.Env):
         if astro == 0 or self.score_board["Bullet Left"] == 0:
             return "Hell"
         # goal state
-        elif self.score_board["Score"] > 700 or total_enemy == 0:
+        elif self.score_board["Score"] > 130 or total_enemy == 0:
             return "Goal"
         return False
 

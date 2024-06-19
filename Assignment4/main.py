@@ -13,13 +13,13 @@ from utils import ReplayBuffer, train
 
 # User definitions:
 # -----------------
-train_dqn = False
-test_dqn = True
-render = True
+train_dqn = True
+test_dqn = False
+render = False
 
 # Define env attributes (environment specific)
-num_actions = 4
-num_states = 2
+num_actions = 5
+num_states = 4
 
 # Hyperparameters:
 # ----------------
@@ -27,9 +27,11 @@ learning_rate = 0.005
 gamma = 0.98
 buffer_limit = 50_000
 batch_size = 32
-num_episodes = 10_000
-max_steps = 10_000
+num_episodes = 20_000
+max_steps = 50_000
 
+epsilon = 1.0  # Exploration rate
+epsilon_min = 0.1  # Minimum exploration rate
 
 # Main:
 # -----
@@ -55,9 +57,10 @@ if train_dqn:
     hell = 0
 
     for n_epi in range(num_episodes):
-        epsilon = max(
-            0.01, 0.08 - 0.01 * (n_epi / 200)
-        )  # ! Linear annealing from 8% to 1%
+        if n_epi < 45_000:
+            epsilon = epsilon_min + (1.0 - epsilon_min) * (1 - n_epi / num_episodes)
+        else:
+            epsilon = epsilon_min
 
         state_, _ = env.reset()
         done = False
@@ -126,7 +129,7 @@ if test_dqn:
     goal = 0
     hell = 0
 
-    for _ in range(10):
+    for _ in range(1000):
         state_, _ = env.reset()
         episode_reward = 0
 

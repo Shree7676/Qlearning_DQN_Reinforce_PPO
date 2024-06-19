@@ -86,7 +86,7 @@ data_list = [
     {
         "Type": "Hero",
         "Reward": 50,
-        "Position": (35, 650),
+        "Position": (735, 650),
         "Status": "Alive",
         "Image": "hero.png",
     },
@@ -97,5 +97,6 @@ score_board = {
     "Target Hit": 0,
     "Hostage Loss": 0,
     "Self Hit": 0,
-    "Bullet Left": 10_000,
+    "Bullet Loss": 0,
+    "Bullet Left": 1000,
 }
