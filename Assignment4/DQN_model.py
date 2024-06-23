@@ -26,6 +26,6 @@ class Qnet(nn.Module):
         action_arr = self.forward(input_state)
 
         if random.random() < epsilon:
-            return random.randint(0, 4)
+            return random.randint(0, 3)
         else:
             return action_arr.argmax().item()

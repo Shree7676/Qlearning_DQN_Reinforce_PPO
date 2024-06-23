@@ -13,12 +13,12 @@ from utils import ReplayBuffer, train
 
 # User definitions:
 # -----------------
-train_dqn = True
-test_dqn = False
-render = False
+train_dqn = False
+test_dqn = True
+render = True
 
 # Define env attributes (environment specific)
-num_actions = 5
+num_actions = 4
 num_states = 4
 
 # Hyperparameters:
@@ -27,8 +27,8 @@ learning_rate = 0.005
 gamma = 0.98
 buffer_limit = 50_000
 batch_size = 32
-num_episodes = 20_000
-max_steps = 50_000
+num_episodes = 50_000
+max_steps = 10_000
 
 epsilon = 1.0  # Exploration rate
 epsilon_min = 0.1  # Minimum exploration rate
@@ -69,6 +69,7 @@ if train_dqn:
         for _ in range(max_steps):
             action_ = q_net.sample_action(torch.from_numpy(state_).float(), epsilon)
             s_prime, reward_, done, _ = env.step(action_)
+            # print(s_prime, reward_)
             if render:
                 env.render()
 
@@ -82,11 +83,9 @@ if train_dqn:
 
             if done == "Goal":
                 goal += 1
-                print(f"goal {goal} \t hell {hell}")
                 break
             elif done == "Hell":
                 hell += 1
-                print(f"goal {goal} \t hell {hell}")
                 break
 
         if memory.size() > 2000:
@@ -95,7 +94,7 @@ if train_dqn:
         if n_epi % print_interval == 0 and n_epi != 0:
             q_target.load_state_dict(q_net.state_dict())
             print(
-                f"n_episode :{n_epi}, Episode reward : {episode_reward}, n_buffer : {memory.size()}, eps : {epsilon}"
+                f"n_episode :{n_epi}, Episode reward : {episode_reward}, n_buffer : {memory.size()}, eps : {epsilon} ##### goal={goal} and hell={hell}"
             )
 
         rewards.append(episode_reward)

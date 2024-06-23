@@ -1,3 +1,9 @@
+import random
+
+import numpy as np
+
+possible_values_heroX = np.arange(35, 1366, 70)
+heroX = possible_values_heroX[random.randint(0, len(possible_values_heroX) - 1)]
 data_list = [
     {
         "Type": "Enemy_N",
@@ -86,7 +92,7 @@ data_list = [
     {
         "Type": "Hero",
         "Reward": 50,
-        "Position": (735, 650),
+        "Position": (heroX, 650),
         "Status": "Alive",
         "Image": "hero.png",
     },
